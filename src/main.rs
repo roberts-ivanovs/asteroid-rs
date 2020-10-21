@@ -9,8 +9,8 @@ use game::helpers::*;
 use game::setup::*;
 use models::structs::*;
 
-pub static MAX_X: u32 = 720;
-pub static MAX_Y: u32 = 1280;
+pub static MAX_X: u32 = 1280;
+pub static MAX_Y: u32 = 720;
 
 fn main() {
     App::build()

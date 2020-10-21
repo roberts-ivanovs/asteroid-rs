@@ -54,6 +54,7 @@ pub fn update_logical_position(mut query: Query<(&mut Transform, &Position, &Ang
         real.set_translation(Vec3::new(position.0.x(), position.0.y(), 1.0));
         real.set_rotation(rot);
         real.set_non_uniform_scale(scale.0);
+
         // real.set_non_uniform_scale(Vec3::new(0.5, 5.5, 1.0));
     }
 }
@@ -80,6 +81,18 @@ pub fn update_matrices(
         // Update translation matrix
         let velocity = direction.0 * speed.0 * time.delta_seconds;
         position.0 += velocity;
+
+        // Handle going out of borders
+        if ((MAX_X as f32 / 2.) - position.0.x().abs()) < 0. {
+            let x = -1. * position.0.x();
+            position.0.set_x(x);
+        }
+        if ((MAX_Y as f32 / 2.) - position.0.y().abs()) < 0. {
+            let y = -1. * position.0.y();
+            position.0.set_y(y);
+        }
+
+        println!("{}", position.0.y());
     }
 }
 
