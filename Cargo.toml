@@ -5,7 +5,7 @@ authors = ["Roberts Ivanovs <robertsivanovs1999@gmail.com>"]
 edition = "2018"
 
 [profile.dev]
-opt-level = 3
+opt-level = 1
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -13,3 +13,4 @@ opt-level = 3
 # glam = {version="0.9.5", features=["mint"]}
 bevy = "0.2.1"
 bevy_prototype_lyon = "0.1"
+rand = "0.7.3"

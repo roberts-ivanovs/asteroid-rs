@@ -1,3 +1,4 @@
+use crate::game::helpers::spawn_asteroid;
 use crate::models::structs::*;
 use bevy::prelude::*;
 use bevy_prototype_lyon::prelude::*;
@@ -8,6 +9,11 @@ pub fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     asset_server: Res<AssetServer>,
 ) {
+
+    for _ in 0..10 {
+        spawn_asteroid(&mut commands, &mut meshes, &mut materials);
+    }
+
     commands
         // cameras
         .spawn(Camera2dComponents::default())

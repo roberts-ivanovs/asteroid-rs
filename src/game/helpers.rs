@@ -1,11 +1,21 @@
-use bevy::{diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin}, prelude::*};
-use core::f32::consts::PI;
-use crate::models::structs::FpsText;
-use crate::models::structs::Rotation;
-use crate::models::structs::Position;
-use crate::models::structs::Angle;
 use crate::models::structs::Direction;
+use crate::models::structs::FpsText;
+use crate::models::structs::Position;
+use crate::models::structs::Rotation;
 use crate::models::structs::Speed;
+use crate::models::structs::{Angle, Asteroid};
+use crate::AsteroidSpawnTimer;
+use crate::{MAX_X, MAX_Y};
+use bevy::{
+    diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin},
+    prelude::*,
+};
+use bevy_prototype_lyon::prelude::primitive;
+use bevy_prototype_lyon::prelude::FillOptions;
+use bevy_prototype_lyon::prelude::ShapeType;
+use bevy_prototype_lyon::TessellationMode;
+use core::f32::consts::PI;
+use rand::prelude::*;
 
 use crate::models::structs::Player;
 // ---------- Functions -------------- //
@@ -87,7 +97,6 @@ pub fn get_vec2_from_vec3(dir3: &Vec3) -> Vec2 {
     dir3.truncate()
 }
 
-
 pub fn text_update_system(diagnostics: Res<Diagnostics>, mut query: Query<(&mut Text, &FpsText)>) {
     for (mut text, _tag) in &mut query.iter() {
         if let Some(fps) = diagnostics.get(FrameTimeDiagnosticsPlugin::FPS) {
@@ -96,4 +105,42 @@ pub fn text_update_system(diagnostics: Res<Diagnostics>, mut query: Query<(&mut 
             }
         }
     }
+}
+
+pub fn spawn_asteroid(
+    commands: &mut Commands,
+    meshes: &mut ResMut<Assets<Mesh>>,
+    materials: &mut ResMut<Assets<ColorMaterial>>,
+) {
+    let mut rng = rand::thread_rng();
+    let rand_x = rng.gen_range(-300., 300.);
+    let rand_y = rng.gen_range(-300., 300.);
+
+    let step_t = PI * 2. / 30.;
+    let radius = 1. + rng.gen_range(0., 1.);
+
+    let mut points = vec![];
+    let mut t = 0.;
+    while t < PI * 2. {
+        let x = radius + t.cos();
+        let y = radius + t.sin();
+        points.push((x, y).into());
+        t += step_t;
+    }
+
+    println!("rand_x {} rand_y {} {:?}", rand_x, rand_y, points);
+    let mut asteroid = primitive(
+        materials.add(Color::rgb(1.0, 0.0, 0.7).into()),
+        meshes,
+        ShapeType::Polyline {
+            points: points,
+            closed: false, // required by enum variant, but it is ignored by tessellator
+        },
+        TessellationMode::Fill(&FillOptions::default()),
+        Vec3::new(rand_x, rand_y, 1.0),
+    );
+
+    asteroid.transform.set_scale(10.0);
+
+    commands.spawn(asteroid).with(Asteroid);
 }
