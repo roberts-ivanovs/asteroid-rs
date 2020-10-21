@@ -1,8 +1,7 @@
 mod models;
 
 use bevy::prelude::*;
-// use nalgebra::*;
-// use bevy::prelude::{Vec2, Vec3, Mat3};
+use bevy_prototype_lyon::prelude::*;
 use std::f32::consts::PI;
 
 fn main() {
@@ -43,18 +42,31 @@ struct Combination(Mat3);
 
 // ---------- Functions -------------- //
 
-fn setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
+fn setup(
+    mut commands: Commands,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    mut meshes: ResMut<Assets<Mesh>>,
+) {
     commands
         // cameras
         .spawn(Camera2dComponents::default())
         .spawn(UiCameraComponents::default())
-        // player
-        .spawn(SpriteComponents {
-            material: materials.add(Color::rgb(0.0, 0.0, 1.0).into()),
-            transform: Transform::from_translation(Vec3::new(0.0, -0.0, 0.0)),
-            sprite: Sprite::new(Vec2::new(20.0, 30.0)),
-            ..Default::default()
-        })
+        .spawn(primitive(
+            materials.add(Color::rgb(0.0, 0.0, 1.0).into()),
+            &mut meshes,
+            ShapeType::Polyline {
+                points: vec![
+                    (-20.0, -10.0).into(),
+                    (0.0, 10.0).into(),
+                    (20.0, -10.0).into(),
+                    (0.0, -0.0).into(),
+                    (-20.0, -10.0).into(),
+                ],
+                closed: false, // required by enum variant, but it is ignored by tessellator
+            },
+            TessellationMode::Fill(&FillOptions::default()),
+            Vec3::new(-0.0, 0.0, 0.0),
+        ))
         .with(Player)
         .with(Speed(0.))
         .with(Angle(0.))
@@ -74,11 +86,11 @@ fn get_keyboard_input(
 ) {
     for (player, mut speed, mut angle) in &mut query.iter() {
         if keyboard_input.pressed(KeyCode::Left) {
-            angle.0 += 1.0;
+            angle.0 -= 1.0;
         }
 
         if keyboard_input.pressed(KeyCode::Right) {
-            angle.0 -= 1.0;
+            angle.0 += 1.0;
         }
         if keyboard_input.pressed(KeyCode::Up) {
             speed.0 += 1.;
@@ -94,7 +106,7 @@ fn update_logical_position(mut query: Query<(&Player, &mut Transform, &Position,
     for (player, mut real, position, angle) in &mut query.iter() {
         // Calculate rotation
         let theta_rad = angle.0 * PI / 180.;
-        let rot = Quat::from_axis_angle(Vec3::new(0., 0., 1.), theta_rad);
+        let rot = Quat::from_axis_angle(Vec3::new(0., 0., -1.), theta_rad);
 
         // Set factual values
         real.set_translation(Vec3::new(position.0.x(), position.0.y(), 1.0));

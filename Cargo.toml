@@ -9,5 +9,6 @@ edition = "2018"
 [dependencies]
 glam = {version="0.9.5", features=["mint"]}
 bevy = "0.2.1"
+bevy_prototype_lyon = "0.1"
 # nalgebra = "0.22"
 # nalgebra-glm = "0.8"
