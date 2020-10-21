@@ -89,12 +89,9 @@ fn get_keyboard_input(
     }
 }
 
-fn update_logical_position(
-    mut query: Query<(&Player, &mut Transform, &Position, &Angle,)>,
-) {
+fn update_logical_position(mut query: Query<(&Player, &mut Transform, &Position, &Angle)>) {
     // if time.delta_seconds < 5. {return}
     for (player, mut real, position, angle) in &mut query.iter() {
-
         // Calculate rotation
         let theta_rad = angle.0 * PI / 180.;
         let rot = Quat::from_axis_angle(Vec3::new(0., 0., 1.), theta_rad);
@@ -116,14 +113,7 @@ fn update_matrices(
         &mut Direction,
     )>,
 ) {
-    for (
-        speed,
-        angle,
-        mut rotation,
-        mut position,
-        mut direction,
-    ) in &mut query.iter()
-    {
+    for (speed, angle, mut rotation, mut position, mut direction) in &mut query.iter() {
         // Update matrix values
         // Update rotation matrix
         rotation.0 = get_matrix_rotation(angle.0);
@@ -133,7 +123,7 @@ fn update_matrices(
         direction.0 = get_vec2_from_vec3(&dir3);
 
         // Update translation matrix
-        let velocity =  direction.0 * speed.0 * time.delta_seconds;
+        let velocity = direction.0 * speed.0 * time.delta_seconds;
         position.0 += velocity;
     }
 }
@@ -153,4 +143,3 @@ fn get_matrix_rotation(theta: f32) -> Mat3 {
 fn get_vec2_from_vec3(dir3: &Vec3) -> Vec2 {
     dir3.truncate()
 }
-
