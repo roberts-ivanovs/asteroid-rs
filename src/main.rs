@@ -81,10 +81,10 @@ fn get_keyboard_input(
             angle.0 -= 1.0;
         }
         if keyboard_input.pressed(KeyCode::Up) {
-            speed.0 += 1.0;
+            speed.0 += 1.;
         }
         if keyboard_input.pressed(KeyCode::Down) {
-            speed.0 -= 1.0;
+            speed.0 -= 1.;
         }
     }
 }
@@ -93,31 +93,16 @@ fn update_logical_position(
     time: Res<Time>,
     mut query: Query<(&Player, &mut Transform, &mut Combination)>,
 ) {
-
     // if time.delta_seconds < 5. {return}
     for (player, mut real_transformation, comb) in &mut query.iter() {
-
-        // Mat4::identity()
         let comination = get_mat4_from_mat3(&comb.0);
         let transf_mat = real_transformation.value_mut();
-        println!("og{:?}\ncomb{:?}", &transf_mat, &comination);
-        // *transf_mat = transf_mat.mul_mat4(&comination);
         *transf_mat = comination;
-        // real_transformation.value();
-
-        // real_transformation.set_rotation(val.mul_quat(&comb.0));
-        // let translation = &mut real_transformation.translation();
-        // // move the paddle horizontally
-        // *translation.x_mut() += time.delta_seconds * direction * 100.;
-        // // bound the paddle within the walls
-        // *translation.x_mut() = translation.x().min(380.0).max(-380.0);
-        // real_transformation.set_translation(*translation);
     }
 }
 
 fn update_matrices(
     time: Res<Time>,
-    keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<(
         &Player,
         &mut Transform,
@@ -138,39 +123,24 @@ fn update_matrices(
         mut rotation,
         mut translation,
         mut combination,
-        mut direction,
         mut position,
+        mut direction,
     ) in &mut query.iter()
     {
         //  ------------ NEW IMPL WHICH ONLY UPDATES MATRICES ----------------
         rotation.0 = get_matrix_rotation(angle.0);
 
-        let dir3 = rotation.0.mul_vec3(Vec3::new(0., 0., 0.));
+        let dir3 = rotation.0.mul_vec3(Vec3::new(0., 1., 0.));
         direction.0 = get_vec2_from_vec3(&dir3);
-        position.0 += direction.0 * speed.0;
 
+        let velocity =  direction.0 * speed.0 * time.delta_seconds;
+        position.0 += velocity;
+
+        println!("position.0 {}", position.0);
         translation.0 = get_matrix_translation(position.0.x(), position.0.y());
-
-        // let scale = get_matrix_scale(position.0.x(), position.0.y());
-        // combination.0 = rotation.0.mul_mat3(&scale);
-        // combination.0 = translation.0.mul_mat3(&combination.0);
-        combination.0 = rotation.0;
-        //  ------------ OLD IMPL WHICH DID EVERYTHING ----------------
-        // let mut direction = 0.0;
-        // if keyboard_input.pressed(KeyCode::Left) {
-        //     direction -= 1.0;
-        // }
-
-        // if keyboard_input.pressed(KeyCode::Right) {
-        //     direction += 1.0;
-        // }
-
-        // let translation = &mut transform.translation();
-        // // move the paddle horizontally
-        // *translation.x_mut() += time.delta_seconds * direction * 100.;
-        // // bound the paddle within the walls
-        // *translation.x_mut() = translation.x().min(380.0).max(-380.0);
-        // transform.set_translation(*translation);
+        let scale = get_matrix_scale(0.5, 1.5).mul_scalar(5.);
+        println!("translation.0 {}", translation.0);
+        combination.0 = rotation.0 * scale;
     }
 }
 
