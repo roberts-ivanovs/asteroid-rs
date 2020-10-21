@@ -30,6 +30,7 @@ fn main() {
         .add_system(get_keyboard_input.system())
         .add_system(text_update_system.system())
         .add_system(update_logical_position.system())
+        // .add_system(float_asteroids.system())
         // .add_resource(AsteroidSpawnTimer(Timer::new(
         //     Duration::from_millis(1000),
         //     true,

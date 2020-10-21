@@ -39,9 +39,9 @@ pub fn setup(
         .with(Angle(0.))
         .with(Rotation(Mat3::identity()))
         .with(Translation(Mat3::identity()))
-        .with(Translation(Mat3::identity()))
         .with(Position(Vec2::new(0., 0.)))
         .with(Direction(Vec2::new(0., 1.)))
+        .with(Scale(Vec3::new(0.5, 5.5, 1.0)))
         .with(Collider::Player)
         // scoreboard
         .spawn(TextComponents {

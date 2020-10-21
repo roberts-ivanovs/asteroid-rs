@@ -5,6 +5,7 @@ use crate::models::structs::Rotation;
 use crate::models::structs::Speed;
 use crate::models::structs::{Angle, Asteroid};
 use crate::AsteroidSpawnTimer;
+use crate::Scale;
 use crate::{MAX_X, MAX_Y};
 use bevy::{
     diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin},
@@ -42,9 +43,9 @@ pub fn get_keyboard_input(
     }
 }
 
-pub fn update_logical_position(mut query: Query<(&Player, &mut Transform, &Position, &Angle)>) {
+pub fn update_logical_position(mut query: Query<(&mut Transform, &Position, &Angle, &Scale)>) {
     // if time.delta_seconds < 5. {return}
-    for (player, mut real, position, angle) in &mut query.iter() {
+    for (mut real, position, angle, scale) in &mut query.iter() {
         // Calculate rotation
         let theta_rad = angle.0 * PI / 180.;
         let rot = Quat::from_axis_angle(Vec3::new(0., 0., -1.), theta_rad);
@@ -52,7 +53,8 @@ pub fn update_logical_position(mut query: Query<(&Player, &mut Transform, &Posit
         // Set factual values
         real.set_translation(Vec3::new(position.0.x(), position.0.y(), 1.0));
         real.set_rotation(rot);
-        real.set_non_uniform_scale(Vec3::new(0.5, 5.5, 1.0));
+        real.set_non_uniform_scale(scale.0);
+        // real.set_non_uniform_scale(Vec3::new(0.5, 5.5, 1.0));
     }
 }
 
@@ -128,9 +130,8 @@ pub fn spawn_asteroid(
         t += step_t;
     }
 
-    println!("rand_x {} rand_y {} {:?}", rand_x, rand_y, points);
     let mut asteroid = primitive(
-        materials.add(Color::rgb(1.0, 0.0, 0.7).into()),
+        materials.add(Color::rgb(1.0, 0.0, 0.2).into()),
         meshes,
         ShapeType::Polyline {
             points: points,
@@ -139,8 +140,25 @@ pub fn spawn_asteroid(
         TessellationMode::Fill(&FillOptions::default()),
         Vec3::new(rand_x, rand_y, 1.0),
     );
-
     asteroid.transform.set_scale(10.0);
 
-    commands.spawn(asteroid).with(Asteroid);
+    let angle = rng.gen_range(20, 360);
+    let speed = rng.gen_range(1, 30);
+
+    commands
+        .spawn(asteroid)
+        .with(Asteroid)
+        .with(Angle(angle as f32))
+        .with(Position(Vec2::new(rand_x, rand_y)))
+        .with(Speed(speed as f32))
+        .with(Rotation(Mat3::identity()))
+        .with(Scale(Vec3::new(
+            rng.gen_range(10., 30.),
+            rng.gen_range(10., 30.),
+            rng.gen_range(10., 30.),
+        )))
+        .with(Direction(Vec2::new(
+            rng.gen_range(1., 10.),
+            rng.gen_range(1., 10.),
+        )));
 }
