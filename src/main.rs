@@ -90,57 +90,51 @@ fn get_keyboard_input(
 }
 
 fn update_logical_position(
-    time: Res<Time>,
-    mut query: Query<(&Player, &mut Transform, &mut Combination)>,
+    mut query: Query<(&Player, &mut Transform, &Position, &Angle,)>,
 ) {
     // if time.delta_seconds < 5. {return}
-    for (player, mut real_transformation, comb) in &mut query.iter() {
-        let comination = get_mat4_from_mat3(&comb.0);
-        let transf_mat = real_transformation.value_mut();
-        *transf_mat = comination;
+    for (player, mut real, position, angle) in &mut query.iter() {
+
+        // Calculate rotation
+        let theta_rad = angle.0 * PI / 180.;
+        let rot = Quat::from_axis_angle(Vec3::new(0., 0., 1.), theta_rad);
+
+        // Set factual values
+        real.set_translation(Vec3::new(position.0.x(), position.0.y(), 1.0));
+        real.set_rotation(rot);
+        real.set_non_uniform_scale(Vec3::new(0.5, 5.5, 1.0));
     }
 }
 
 fn update_matrices(
     time: Res<Time>,
     mut query: Query<(
-        &Player,
-        &mut Transform,
         &mut Speed,
         &mut Angle,
         &mut Rotation,
-        &mut Translation,
-        &mut Combination,
         &mut Position,
         &mut Direction,
     )>,
 ) {
     for (
-        player,
-        mut real,
         speed,
         angle,
         mut rotation,
-        mut translation,
-        mut combination,
         mut position,
         mut direction,
     ) in &mut query.iter()
     {
-        //  ------------ NEW IMPL WHICH ONLY UPDATES MATRICES ----------------
+        // Update matrix values
+        // Update rotation matrix
         rotation.0 = get_matrix_rotation(angle.0);
 
+        // Update direction matrix
         let dir3 = rotation.0.mul_vec3(Vec3::new(0., 1., 0.));
         direction.0 = get_vec2_from_vec3(&dir3);
 
+        // Update translation matrix
         let velocity =  direction.0 * speed.0 * time.delta_seconds;
         position.0 += velocity;
-
-        println!("position.0 {}", position.0);
-        translation.0 = get_matrix_translation(position.0.x(), position.0.y());
-        let scale = get_matrix_scale(0.5, 1.5).mul_scalar(5.);
-        println!("translation.0 {}", translation.0);
-        combination.0 = rotation.0 * scale;
     }
 }
 
@@ -160,31 +154,3 @@ fn get_vec2_from_vec3(dir3: &Vec3) -> Vec2 {
     dir3.truncate()
 }
 
-fn get_matrix_translation(t_x: f32, t_y: f32) -> Mat3 {
-    Mat3::from_cols(
-        Vec3::new(1., 0., t_x),
-        Vec3::new(0., 1., t_y),
-        Vec3::new(0., 0., 1.),
-    )
-}
-
-fn get_matrix_scale(s_x: f32, s_y: f32) -> Mat3 {
-    Mat3::from_cols(
-        Vec3::new(s_x, 0., 0.),
-        Vec3::new(0., s_y, 0.),
-        Vec3::new(0., 0., 1.),
-    )
-}
-
-fn get_vec3_from_vec2(dir2: &Vec2) -> Vec3 {
-    dir2.extend(0.)
-}
-
-fn get_mat4_from_mat3(m3: &Mat3) -> Mat4 {
-    Mat4::from_cols(
-        m3.x_axis().extend(0.),
-        m3.y_axis().extend(0.),
-        m3.z_axis().extend(0.),
-        Vec3::zero().extend(1.),
-    )
-}
