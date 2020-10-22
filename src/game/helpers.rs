@@ -88,7 +88,6 @@ pub fn update_logical_position(mut query: Query<(&mut Transform, &Position, &Ang
         real.set_translation(Vec3::new(position.0.x(), position.0.y(), 1.0));
         real.set_rotation(rot);
         real.set_non_uniform_scale(scale.0);
-
     }
 }
 
@@ -174,38 +173,37 @@ pub fn spawn_asteroid(
     let rand_x = rng.gen_range(-300., 300.);
     let rand_y = rng.gen_range(-300., 300.);
 
-    let step_t = PI * 2. / 30.;
     let radius = 1. + rng.gen_range(0., 1.);
 
     let mut points = vec![];
-    let mut t = 0.;
-    while t < PI * 2. {
-        let x = radius + t.cos();
-        let y = radius + t.sin();
+
+    for t in (0..360).step_by(30) {
+        let x = (radius + (t as f32).cos()) * rng.gen_range(0.5, 1.5);
+        let y = (radius + (t as f32).sin()) * rng.gen_range(0.5, 1.5);
         points.push((x, y).into());
-        t += step_t;
     }
 
+    let translation_vec = Vec3::new(rand_x, rand_y, 1.0);
     let mut asteroid = primitive(
-        materials.add(Color::rgb(1.0, 0.0, 0.2).into()),
+        materials.add(Color::rgb(0.6, 0.3, 0.0).into()),
         meshes,
         ShapeType::Polyline {
             points: points,
             closed: false, // required by enum variant, but it is ignored by tessellator
         },
-        TessellationMode::Fill(&FillOptions::default()),
-        Vec3::new(rand_x, rand_y, 1.0),
+        TessellationMode::Fill(&FillOptions::non_zero()),
+        translation_vec,
     );
     asteroid.transform.set_scale(10.0);
 
-    let angle = rng.gen_range(20, 360);
-    let speed = rng.gen_range(1, 30);
+    let angle = rng.gen_range(0, 360);
+    let speed = rng.gen_range(10, 100);
 
     commands
         .spawn(asteroid)
         .with(Asteroid)
         .with(Angle(angle as f32))
-        .with(Position(Vec2::new(rand_x, rand_y)))
+        .with(Position(translation_vec.truncate()))
         .with(Speed(speed as f32))
         .with(Rotation(Mat3::identity()))
         .with(Scale(Vec3::new(

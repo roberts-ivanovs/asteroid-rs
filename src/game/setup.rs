@@ -18,7 +18,7 @@ pub fn setup(
         .spawn(Camera2dComponents::default())
         .spawn(UiCameraComponents::default())
         .spawn(primitive(
-            materials.add(Color::rgb(0.0, 0.0, 1.0).into()),
+            materials.add(Color::rgb(76. / 255., 153. / 255., 0. / 255.).into()),
             &mut meshes,
             ShapeType::Polyline {
                 points: vec![

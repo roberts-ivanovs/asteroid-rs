@@ -24,7 +24,11 @@ fn main() {
             height: MAX_Y,
             ..Default::default()
         })
-        .add_resource(ClearColor(Color::rgb(0.9, 0.9, 0.9)))
+        .add_resource(ClearColor(Color::rgb(
+            229. / 255.,
+            204. / 255.,
+            255. / 255.,
+        )))
         .add_startup_system(setup.system())
         .add_system(update_matrices.system())
         .add_system(get_keyboard_input.system())
