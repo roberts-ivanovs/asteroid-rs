@@ -31,10 +31,13 @@ fn main() {
         .add_system(text_update_system.system())
         .add_system(update_logical_position.system())
         // .add_system(float_asteroids.system())
-        // .add_resource(AsteroidSpawnTimer(Timer::new(
-        //     Duration::from_millis(1000),
-        //     true,
-        // )))
-        // .add_system(asteroid_spawner.system())
+        .add_resource(BulletSpawnerTimer(Timer {
+            elapsed: 0.0,
+            duration: Duration::from_secs(1).as_secs_f32(),
+            finished: true,
+            just_finished: true,
+            repeating: true,
+        }))
+        // .add_system(spawn_shootable.system())
         .run();
 }

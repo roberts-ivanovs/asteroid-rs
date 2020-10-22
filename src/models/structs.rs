@@ -3,8 +3,11 @@ use bevy::prelude::Vec2;
 use bevy::prelude::*;
 
 // ------------ Types ----------------------- //
-pub enum Collider {
+#[derive(PartialEq)]
+pub enum Objects {
     Player,
+    Asteroid,
+    Bullet,
 }
 
 pub struct Player;
@@ -18,4 +21,7 @@ pub struct Translation(pub(crate) Mat3);
 // A unit struct to help identify the FPS UI component, since there may be many Text components
 pub struct FpsText;
 pub struct Asteroid;
+pub struct Bullet;
+pub struct Flying(pub(crate) bool);
+pub struct BulletSpawnerTimer(pub(crate) Timer);
 pub struct AsteroidSpawnTimer(pub(crate) Timer);

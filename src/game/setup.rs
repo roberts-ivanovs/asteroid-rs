@@ -9,7 +9,6 @@ pub fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     asset_server: Res<AssetServer>,
 ) {
-
     for _ in 0..10 {
         spawn_asteroid(&mut commands, &mut meshes, &mut materials);
     }
@@ -42,8 +41,7 @@ pub fn setup(
         .with(Position(Vec2::new(0., 0.)))
         .with(Direction(Vec2::new(0., 1.)))
         .with(Scale(Vec3::new(0.5, 5.5, 1.0)))
-        .with(Collider::Player)
-        // scoreboard
+        .with(Objects::Player)
         .spawn(TextComponents {
             style: Style {
                 align_self: AlignSelf::FlexEnd,
