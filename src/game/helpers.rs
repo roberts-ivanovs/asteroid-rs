@@ -92,7 +92,6 @@ pub fn update_matrices(
             position.0.set_y(y);
         }
 
-        println!("{}", position.0.y());
     }
 }
 
